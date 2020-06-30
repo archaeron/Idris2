@@ -1,0 +1,50 @@
+name: Release Windows
+on:
+  release:
+    types: [created]
+
+env:
+  MSYSTEM: MINGW64
+  MSYS2_PATH_TYPE: inherit
+  SCHEME: scheme
+  CC: gcc
+
+jobs:
+  generate:
+    name: Create release-artifacts for windows
+    runs-on: windows-latest
+    steps:
+      - name: Init
+        run: |
+          git config --global core.autocrlf false
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Chez Scheme
+        run: |
+          git clone --depth 1 https://github.com/cisco/ChezScheme
+          c:\msys64\usr\bin\bash -l -c "pacman -S --noconfirm tar make"
+          echo "::set-env name=PWD::$(c:\msys64\usr\bin\cygpath -u $(pwd))"
+      - name: Configure and Build Chez Scheme
+        run: |
+          c:\msys64\usr\bin\bash -l -c "cd $env:PWD && cd ChezScheme && ./configure --threads && make"
+      - name: Set Path
+        run: |
+          $chez="$(pwd)\ChezScheme\ta6nt\bin\ta6nt"
+          $idris="$(pwd)\.idris2"
+          echo "::add-path::$chez"
+          echo "::add-path::$idris\bin"
+          echo "::set-env name=IDRIS_PREFIX::$idris"
+          echo "::set-env name=PREFIX::$(c:\msys64\usr\bin\cygpath -u $idris)"
+      - name: Test Scheme
+        run: |
+          scheme --version
+      - name: Bootstrap and install
+        run: c:\msys64\usr\bin\bash -l -c "cd $env:PWD && make bootstrap && make install"
+      - name: debug
+        run: ls -lha
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'idris2-*'
