@@ -41,8 +41,12 @@ jobs:
       - name: Bootstrap and install
         run: c:\msys64\usr\bin\bash -l -c "cd $env:PWD && make bootstrap && make install"
       - name: debug
-        run: ls
+        run: |
+          ls
+          ls .idris2
+          ls Release
+
       - uses: actions/upload-artifact@v2
         with:
           name: windows
-          path: idris2/
+          path: Release/
