@@ -1,8 +1,8 @@
 name: Release Windows
 on:
-    release:
+  release:
     types: [created]
-    
+
 env:
   MSYSTEM: MINGW64
   MSYS2_PATH_TYPE: inherit
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Get Chez Scheme
-        run: | 
+        run: |
           git clone --depth 1 https://github.com/cisco/ChezScheme
           c:\msys64\usr\bin\bash -l -c "pacman -S --noconfirm tar make"
           echo "::set-env name=PWD::$(c:\msys64\usr\bin\cygpath -u $(pwd))"
@@ -47,4 +47,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: 'example-*'
+          args: 'idris2-*'
