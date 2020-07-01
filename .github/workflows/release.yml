@@ -45,8 +45,11 @@ jobs:
           ls
           ls .idris2
           ls Release
+          mkdir windows
+          cp .idris2/ windows
+          cp ChezScheme windows
 
       - uses: actions/upload-artifact@v2
         with:
           name: windows
-          path: .idris2/
+          path: windows/
